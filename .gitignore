@@ -1,0 +1,43 @@
+.github/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# 屏蔽所有大文件/数据/媒体
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npz
+*.tar
+*.zip
+*.mp4
+*.avi
+*.mov
+*.memmap
+*.arrow
+*.stl
+*.bag
+data/
+datasets/
+checkpoints/
+logs/
+results/
+runs/
+wandb/
+tests/data/
+tests/artifacts/
+media/
+
+# 系统
+.DS_Store
+Thumbs.db
+

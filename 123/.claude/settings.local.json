@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(nvidia-smi:*)",
+      "Bash(pip3:*)",
+      "Bash(conda:*)",
+      "Bash(python3:*)",
+      "Bash(/mnt/d/code/123/.venv/bin/python:*)",
+      "Bash(/mnt/d/code/123/.venv/bin/pip install:*)",
+      "Bash(SIMULATION=1 /mnt/d/code/123/.venv/bin/python:*)",
+      "Bash(SIMULATION=1 .venv/bin/python:*)",
+      "Bash(/mnt/d/code/123/.venv/bin/pip list:*)",
+      "Bash(.venv/bin/python -m pytest:*)"
+    ]
+  }
+}
