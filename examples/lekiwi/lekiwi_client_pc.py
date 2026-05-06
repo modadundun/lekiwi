@@ -119,10 +119,6 @@ class KeyboardReader:
             char = str(key)
         self.pressed_keys.add(char)
         # ESC 和 space 立即处理
-        if char == "q":
-            logging.info("Q 键退出")
-            self._cleanup()
-            sys.exit(0)
         if char == " ":
             logging.info("SPACE 急停")
             self.pressed_keys.add(" _space_")
@@ -172,7 +168,7 @@ def main():
     # --------------------------------------------------------
     # 3. 初始化显示窗口
     # --------------------------------------------------------
-    window_name = "LeKiWi Camera [按 Q 退出]"
+    window_name = "LeKiWi Camera [关闭窗口退出]"
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     logging.info("显示窗口已创建")
 
@@ -191,7 +187,7 @@ def main():
         "arm_right_elbow_flex.pos":    0.0,
         "arm_right_wrist_flex.pos":    0.0,
         "arm_right_wrist_roll.pos":    0.0,
-        "arm_right_gripper.pos":       0.0,  # 右臂夹爪（ID 26）
+        "arm_right_gripper.pos":       0.0,
     }
 
     # --------------------------------------------------------
@@ -207,7 +203,7 @@ def main():
     print("  手掌：- 模式切换  = 执行动作")
     print("        Mode 1(夹爪): = 抓取/张开  Mode 2(手势): = 点赞→Fuck→比耶")
     print("  轮子：W/S 前进  A/D 平移  Q/E 旋转")
-    print("  系统：SPACE 急停  Q 退出")
+    print("  系统：SPACE 急停  关闭窗口退出")
     print("=" * 60)
 
     # --------------------------------------------------------
@@ -221,6 +217,8 @@ def main():
     _prev_eq = False
     _prev_minus = False
     _prev_space = False
+    pending_hand_action = None
+    emergency_stop = False
 
     try:
         while True:
@@ -265,18 +263,21 @@ def main():
 
             # --- 手掌 "-" 模式切换 ---
             _curr_minus = kb.is_pressed("-")
+            # DEBUG: 打印当前按下的所有键
+            if kb.pressed_keys:
+                print(f"DEBUG pressed_keys: {kb.pressed_keys}", flush=True)
             if _curr_minus and not _prev_minus:
                 hand_mode = 2 if hand_mode == 1 else 1
                 hand_closed = False
                 gesture_idx = 0
-                print(f"  -> 模式切换: Mode {hand_mode}")
-                sock_cmd.send_string(json.dumps({"hand_action": "mode_switch"}))
+                print(f"  -> 模式切换: Mode {hand_mode}", flush=True)
+                pending_hand_action = "mode_switch"
             _prev_minus = _curr_minus
 
             # --- 手掌 "=" 执行动作 ---
             _curr_eq = kb.is_pressed("=")
             if _curr_eq and not _prev_eq:
-                sock_cmd.send_string(json.dumps({"hand_action": "gripper"}))
+                pending_hand_action = "gripper"
                 if hand_mode == 1:
                     hand_closed = not hand_closed
                     print(f"  -> Mode 1 夹爪: {'闭合' if hand_closed else '张开'}")
@@ -294,7 +295,7 @@ def main():
                 theta_vel = 0.0
                 for motor in arm_pos:
                     arm_pos[motor] = 0.0
-                sock_cmd.send_string(json.dumps({"emergency_stop": True}))
+                emergency_stop = True
                 print("  -> 急停！")
             _prev_space = _curr_space
 
@@ -305,6 +306,12 @@ def main():
                 "y.vel": y_vel,
                 "theta.vel": theta_vel,
             }
+            if pending_hand_action:
+                action["hand_action"] = pending_hand_action
+                pending_hand_action = None
+            if emergency_stop:
+                action["emergency_stop"] = True
+                emergency_stop = False
             sock_cmd.send_string(json.dumps(action))
 
             # 控制帧率
