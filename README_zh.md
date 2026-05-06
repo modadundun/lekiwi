@@ -172,13 +172,13 @@ python -m lerobot.robots.lekiwi.lekiwi --port COM3 --calibrate
 ### 2. 读取当前位置（调试用）
 
 ```bash
-python lerobot/examples/lekiwi/read_position.py
+python examples/lekiwi/read_position.py
 ```
 
 ### 3. 启动遥操作
 
 ```bash
-python lerobot/examples/lekiwi/simple_teleop_with_hand_v3.py
+python examples/lekiwi/simple_teleop_with_hand_v3.py
 ```
 
 启动后按键盘控制，详见下方[键盘映射](#键盘映射)。
@@ -234,7 +234,7 @@ raw_speed = deg_per_sec × 4096 / 360
 deg_per_sec = raw_speed × 360 / 4096
 ```
 
-代码中默认值（位于 `lerobot/src/lerobot/robots/lekiwi/lekiwi.py`）：
+代码中默认值（位于 `src/lerobot/robots/lekiwi/lekiwi.py`）：
 
 ```python
 # 569 raw ≈ 50 deg/s
@@ -277,19 +277,18 @@ STS3215（协议 0）与 SCS0009（协议 1）使用**不同的字节序（Endia
 
 ```
 lerobot_hand/
-├── lerobot/
-│   ├── examples/lekiwi/          # 示例脚本
-│   │   ├── teleop_with_hand.py   # 主遥操作脚本（推荐）
-│   │   ├── teleop_arm_only.py       # 仅手臂遥操作
-│   │   ├── read_position.py                # 读取所有舵机位置（调试）
-│   │   └── record.py                      # 录制数据集（LeRobot 格式）
-│   └── src/lerobot/robots/lekiwi/        # 机器人核心逻辑
-│       ├── lekiwi.py                      # 主机器人类
-│       ├── lekiwi_client.py               # 遥操作客户端
-│       └── config_lekiwi.py              # 机器人配置
-├── docs/                                 # 文档与图片
-├── README.md                             # 英文 README（发布用）
-├── README_zh.md                         # 中文 README（本文件）
+├── examples/lekiwi/              # 示例脚本
+│   ├── simple_teleop_with_hand_v3.py  # ← 主遥操作脚本（推荐）
+│   ├── teleop_arm_only.py           # 仅手臂遥操作
+│   ├── read_position.py             # 读取所有舵机位置（调试）
+│   └── record.py                    # 录制数据集（LeRobot 格式）
+├── src/lerobot/robots/lekiwi/   # 机器人核心逻辑
+│   ├── lekiwi.py                  # 主机器人类
+│   ├── lekiwi_client.py           # 遥操作客户端
+│   └── config_lekiwi.py           # 机器人配置
+├── docs/                          # 文档与图片
+├── README.md                      # 英文 README（发布用）
+├── README_zh.md                   # 中文 README（本文件）
 └── LICENSE
 ```
 

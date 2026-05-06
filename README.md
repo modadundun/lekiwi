@@ -172,13 +172,13 @@ This writes the calibration file to:
 ### 2. Read Current Positions (Debug)
 
 ```bash
-python lerobot/examples/lekiwi/read_position.py
+python examples/lekiwi/read_position.py
 ```
 
 ### 3. Launch Teleoperation
 
 ```bash
-python lerobot/examples/lekiwi/simple_teleop_with_hand_v3.py
+python examples/lekiwi/simple_teleop_with_hand_v3.py
 ```
 
 ---
@@ -195,7 +195,7 @@ raw_speed = deg_per_sec × 4096 / 360
 
 Default in code: `569` raw ≈ **50 deg/s**.
 
-To change, edit `lerobot/src/lerobot/robots/lekiwi/lekiwi.py`:
+To change, edit `src/lerobot/robots/lekiwi/lekiwi.py`:
 
 ```python
 # Line ~437, inside send_action()
@@ -232,18 +232,17 @@ If your wheels move in wrong directions, adjust the wheel ID → physical positi
 
 ```
 lerobot_hand/
-├── lerobot/
-│   ├── examples/lekiwi/          # Example scripts
-│   │   ├── teleop_with_hand.py   # ← Main teleop script (recommended)
-│   │   ├── teleop_arm_only.py       # Arm-only teleoperation
-│   │   ├── read_position.py                # Read all servo positions
-│   │   └── record.py                      # Record dataset (LeRobot format)
-│   └── src/lerobot/robots/lekiwi/        # Core robot logic
-│       ├── lekiwi.py                      # Main robot class
-│       ├── lekiwi_client.py               # Teleoperation client
-│       └── config_lekiwi.py              # Robot configuration
-├── docs/                                 # Documentation and images
-└── README.md                             # This file
+├── examples/lekiwi/              # Example scripts
+│   ├── simple_teleop_with_hand_v3.py  # ← Main teleop script (recommended)
+│   ├── teleop_arm_only.py           # Arm-only teleoperation
+│   ├── read_position.py             # Read all servo positions
+│   └── record.py                    # Record dataset (LeRobot format)
+├── src/lerobot/robots/lekiwi/   # Core robot logic
+│   ├── lekiwi.py                  # Main robot class
+│   ├── lekiwi_client.py           # Teleoperation client
+│   └── config_lekiwi.py           # Robot configuration
+├── docs/                          # Documentation and images
+└── README.md                      # This file
 ```
 
 ---
