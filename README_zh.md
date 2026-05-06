@@ -273,12 +273,83 @@ STS3215（协议 0）与 SCS0009（协议 1）使用**不同的字节序（Endia
 
 ---
 
+## 树莓派部署（Client-Server 架构）
+
+LeKiWi 支持 PC 键盘远程控制树莓派上的机器人，实现输入端与控制端分离：
+
+```
+┌─────────────┐         WiFi          ┌──────────────────────┐
+│  PC (Client) │  ──── ZMQ TCP ────→  │  树莓派 (Server)     │
+│             │                       │                      │
+│ 键盘/手柄输入 │  ←─── 摄像头 ────   │ COM3 → 手臂+底盘舵机  │
+│ 摄像头画面显示 │                       │ COM6 → 手掌舵机       │
+│ 手掌逻辑控制  │                       │ USB摄像头 → 图像采集   │
+└─────────────┘                       └──────────────────────┘
+```
+
+### 脚本说明
+
+| 脚本 | 运行位置 | 说明 |
+|------|----------|------|
+| `examples/lekiwi/lekiwi_server.py` | **树莓派** | Server 端，驱动舵机 + 回传摄像头 |
+| `examples/lekiwi/lekiwi_client_pc.py` | **PC** | Client 端，读取键盘 + 显示画面 |
+
+### 树莓派端（Server）
+
+```bash
+# 1. 确认串口设备名
+ls /dev/ttyUSB*
+
+# 2. 修改脚本中的设备路径（如有需要）
+# 编辑 lekiwi_server.py 开头：
+ARM_PORT = "/dev/ttyUSB0"   # 手臂总线
+HAND_PORT = "/dev/ttyUSB1"  # 手掌总线
+
+# 3. 启动 Server
+python examples/lekiwi/lekiwi_server.py
+```
+
+> **首次使用**：需要先标定手臂，见上方「快速开始 → 标定手臂」。
+
+### PC 端（Client）
+
+```bash
+# 1. 修改树莓派 IP 地址
+# 编辑 lekiwi_client_pc.py 开头：
+PI_IP = "192.168.x.x"   # <-- 改成你的树莓派 IP
+
+# 2. 启动 Client
+python examples/lekiwi/lekiwi_client_pc.py
+```
+
+### 键盘映射
+
+| 按键 | 功能 |
+|------|------|
+| `W`/`S` | 前进 / 后退 |
+| `A`/`D` | 左平移 / 右平移 |
+| `Q`/`E` | 逆时针 / 顺时针旋转 |
+| `Y/H` `U/J` `I/K` `O/L` `P/.` | 左臂各关节 |
+| `T/G` `F/R` `V/B` `M/N` `C/X` | 右臂各关节 |
+| `[` / `]` | 夹爪张开 / 闭合 |
+| `-` | 手掌模式切换（夹爪 ↔ 手势） |
+| `=` | 执行当前模式动作 |
+| `R` / `F` | 速度加 / 减 |
+| `SPACE` | 急停 |
+| `Q` | 退出 |
+
+> PC 端窗口内按 `Q` 或点击窗口 × 按钮退出。
+
+---
+
 ## 项目结构
 
 ```
 lerobot_hand/
 ├── examples/lekiwi/              # 示例脚本
-│   ├── simple_teleop_with_hand_v3.py  # ← 主遥操作脚本（推荐）
+│   ├── simple_teleop_with_hand_v3.py  # 本地遥操作（PC直连）
+│   ├── lekiwi_server.py             # ← 树莓派 Server 端（远程控制）
+│   ├── lekiwi_client_pc.py          # ← PC Client 端（远程控制）
 │   ├── teleop_arm_only.py           # 仅手臂遥操作
 │   ├── read_position.py             # 读取所有舵机位置（调试）
 │   └── record.py                    # 录制数据集（LeRobot 格式）
