@@ -123,14 +123,14 @@ def main():
         port=ARM_PORT,
         id="my_lekiwi",
         disable_torque_on_disconnect=True,
-         cameras={
+        cameras={
         #     "front": OpenCVCameraConfig(
         #         index_or_path=CAMERA_INDEX,
         #         fps=30,
         #         width=640,
         #         height=480,
         #     )
-         },
+        },
     )
     robot = LeKiwi(robot_config)
     robot.connect()

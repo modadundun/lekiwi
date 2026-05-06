@@ -68,7 +68,9 @@ ARM_KEY_MAP = {
     "n": ("arm_right_wrist_flex.pos",    -1),
     "c": ("arm_right_wrist_roll.pos",    +1),
     "x": ("arm_right_wrist_roll.pos",    -1),
-    # 注：夹爪 [ ] 控制暂时禁用（远程模式下夹爪通过手掌 Mode 1 处理）
+    # 右臂夹爪（ID 26）
+    "[": ("arm_right_gripper.pos",       +1),  # 张开
+    "]": ("arm_right_gripper.pos",       -1),  # 闭合
 }
 
 # 底盘键位
@@ -189,8 +191,7 @@ def main():
         "arm_right_elbow_flex.pos":    0.0,
         "arm_right_wrist_flex.pos":    0.0,
         "arm_right_wrist_roll.pos":    0.0,
-        # arm_right_gripper.pos 不通过此路径控制，
-        # 夹爪通过手掌 (COM6) 的 Mode 1 处理
+        "arm_right_gripper.pos":       0.0,  # 右臂夹爪（ID 26）
     }
 
     # --------------------------------------------------------
@@ -202,6 +203,7 @@ def main():
     print(f"\n  连接目标: {PI_IP}:{ZMQ_PORT_CMD}")
     print("\n  左臂：Y/H 肩旋  U/J 肩升  I/K 肘  O/L 腕  P/. 转")
     print("  右臂：T/G 肩旋  F/R 肩升  V/B 肘  M/N 腕  C/X 转")
+    print("        [/] 右臂夹爪（张/合）")
     print("  手掌：- 模式切换  = 执行动作")
     print("        Mode 1(夹爪): = 抓取/张开  Mode 2(手势): = 点赞→Fuck→比耶")
     print("  轮子：W/S 前进  A/D 平移  Q/E 旋转")

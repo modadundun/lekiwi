@@ -412,28 +412,25 @@ class LeKiwi(Robot):
             arm_safe_goal_pos = ensure_safe_goal_position(goal_present_pos, self.config.max_relative_target)
             arm_goal_pos = arm_safe_goal_pos
 
-        # Send goal position to the actuators
-        # Note: self.bus.sync_write() with normalize=True (default) will
-        # automatically unnormalize [-100, 100] to raw [0, 4095] for RANGE_M100_100 motors.
-        # This requires calibration to be present. If no calibration, we manually convert.
-        if self.calibration:
-            # Use automatic unnormalization (requires calibration)
-            arm_goal_pos_raw = {k.replace(".pos", ""): v for k, v in arm_goal_pos.items()}
-            self.bus.sync_write("Goal_Position", arm_goal_pos_raw)
-        else:
-            # No calibration: manually convert [-100, 100] to [0, 4095]
-            if not hasattr(self, "_no_calib_warned"):
-                print("WARNING: No calibration found. Using manual conversion [-100, 100] -> [0, 4095]")
-                self._no_calib_warned = True
-            arm_goal_pos_raw = {}
-            for k, v in arm_goal_pos.items():
-                motor_name = k.replace(".pos", "")
-                # Convert [-100, 100] to [0, 4095]
-                raw = int(((float(v) + 100.0) / 200.0) * 4095)
-                raw = max(0, min(4095, raw))
-                arm_goal_pos_raw[motor_name] = raw
-            # Write with normalize=False since we already converted to raw
-            self.bus.sync_write("Goal_Position", arm_goal_pos_raw, normalize=False)
+        # 写入手臂目标位置（有 calib 时用自动归一化，无 calib 时手动转 raw）
+        # 跳过空写入：cmd 只有手掌/底盘动作时 arm_goal_pos 为空，直接调用会导致 StopIteration
+        if arm_goal_pos:
+            if self.calibration:
+                # Use automatic unnormalization (requires calibration)
+                arm_goal_pos_raw = {k.replace(".pos", ""): v for k, v in arm_goal_pos.items()}
+                self.bus.sync_write("Goal_Position", arm_goal_pos_raw)
+            else:
+                # No calibration: manually convert [-100, 100] to [0, 4095]
+                if not hasattr(self, "_no_calib_warned"):
+                    print("WARNING: No calibration found. Using manual conversion [-100, 100] -> [0, 4095]")
+                    self._no_calib_warned = True
+                arm_goal_pos_raw = {}
+                for k, v in arm_goal_pos.items():
+                    motor_name = k.replace(".pos", "")
+                    raw = int(((float(v) + 100.0) / 200.0) * 4095)
+                    raw = max(0, min(4095, raw))
+                    arm_goal_pos_raw[motor_name] = raw
+                self.bus.sync_write("Goal_Position", arm_goal_pos_raw, normalize=False)
 
         # Limit arm servo speed to 50 deg/s for smooth motion
         # STS3215: 4096 steps/rev, so 50 deg/s = 50 * 4096 / 360 ≈ 569 raw
