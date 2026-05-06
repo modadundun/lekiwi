@@ -9,7 +9,6 @@ LeKiWi Server - 运行在树莓派上
   2. python examples/lekiwi/lekiwi_server.py
 """
 
-import base64
 import json
 import logging
 import os
@@ -186,7 +185,9 @@ def main():
     # 6. 启动摄像头
     # --------------------------------------------------------
     logging.info(f"打开摄像头 {CAMERA_INDEX}...")
-    cap = cv2.VideoCapture(CAMERA_INDEX)
+    cap = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_V4L2)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     if not cap.isOpened():
         logging.warning(f"无法打开摄像头 {CAMERA_INDEX}，将不发送图像")
     else:
@@ -269,14 +270,14 @@ def main():
             if time.time() - last_cmd_time > WATCHDOG_TIMEOUT_MS / 1000:
                 robot.stop_base()
 
-            # --- 采集摄像头画面并发送 ---
+            # --- 采集摄像头画面并发送（优化：二进制传输，避免 Base64/JSON） ---
             if cap.isOpened():
                 ret, frame = cap.read()
                 if ret:
-                    _, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-                    obs = {"image": base64.b64encode(buf).decode("utf-8")}
+                    # JPEG 压缩（二进制）
+                    _, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 70])
                     try:
-                        sock_obs.send_string(json.dumps(obs), flags=zmq.NOBLOCK)
+                        sock_obs.send(buf, flags=zmq.NOBLOCK)  # 直接发二进制，不做 Base64/JSON
                     except zmq.Again:
                         pass
 

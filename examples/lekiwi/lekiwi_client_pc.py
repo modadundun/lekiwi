@@ -9,12 +9,13 @@ LeKiWi PC Client - 运行在 PC 上
   2. python examples/lekiwi/lekiwi_client_pc.py
 """
 
-import base64
 import json
 import logging
 import os
 import sys
 import time
+
+from ultralytics import YOLO
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 lerobot_dir = os.path.dirname(os.path.dirname(script_dir))
@@ -147,6 +148,12 @@ def main():
     # --------------------------------------------------------
     # 1. 连接 ZMQ Server（树莓派）
     # --------------------------------------------------------
+    logging.info("加载 YOLOv8 模型...")
+    model = YOLO("yolov8n.pt")   # nano 模型，速度最快，适合实时推理
+    model.eval()
+    yolo_enabled = True
+    logging.info("YOLO 模型加载完成")
+
     logging.info(f"连接树莓派 {PI_IP}...")
     ctx = zmq.Context()
 
@@ -168,9 +175,17 @@ def main():
     # --------------------------------------------------------
     # 3. 初始化显示窗口
     # --------------------------------------------------------
-    window_name = "LeKiWi Camera [关闭窗口退出]"
+    # 强制关闭所有可能存在的旧窗口
+    cv2.destroyAllWindows()
+    cv2.waitKey(1)
+    
+    window_name = "LeKiWi Camera [Z开关YOLO | 关闭窗口退出]"
+    
+    # 调试：确认只创建一次窗口
+    print(f"[DEBUG] 准备创建窗口: '{window_name}'")
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-    logging.info("显示窗口已创建")
+    print(f"[DEBUG] 窗口创建完成")
+    logging.info(f"显示窗口已创建: {window_name}")
 
     # --------------------------------------------------------
     # 4. 手臂状态初始化（归一化值）
@@ -203,7 +218,7 @@ def main():
     print("  手掌：- 模式切换  = 执行动作")
     print("        Mode 1(夹爪): = 抓取/张开  Mode 2(手势): = 点赞→Fuck→比耶")
     print("  轮子：W/S 前进  A/D 平移  Q/E 旋转")
-    print("  系统：SPACE 急停  关闭窗口退出")
+    print("  显示：Z 开关YOLO  Q/关闭窗口 退出")
     print("=" * 60)
 
     # --------------------------------------------------------
@@ -213,6 +228,9 @@ def main():
     hand_closed = False
     gesture_idx = 0
     last_frame = None
+    fps_counter = 0
+    fps_start_time = time.time()
+    display_fps = 0
 
     _prev_eq = False
     _prev_minus = False
@@ -224,21 +242,51 @@ def main():
         while True:
             t0 = time.perf_counter()
 
-            # --- 接收图像 ---
-            try:
-                msg = sock_obs.recv_string(zmq.NOBLOCK)
-                obs = json.loads(msg)
-                if "image" in obs and obs["image"]:
-                    img_data = base64.b64decode(obs["image"])
-                    np_arr = np.frombuffer(img_data, dtype=np.uint8)
-                    last_frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-            except (zmq.Again, json.JSONDecodeError):
-                pass
+            # --- 接收图像（只取最新帧，丢弃旧帧避免延迟积压） ---
+            latest_frame = None
+            while True:
+                try:
+                    jpg_data = sock_obs.recv(zmq.NOBLOCK)
+                    latest_frame = cv2.imdecode(np.frombuffer(jpg_data, dtype=np.uint8), cv2.IMREAD_COLOR)
+                except zmq.Again:
+                    break
+            if latest_frame is not None:
+                last_frame = latest_frame
 
-            # 显示图像
+            # --- 显示图像（含 YOLO 检测）---
             if last_frame is not None:
-                cv2.imshow(window_name, last_frame)
+                display_frame = last_frame.copy()
+
+                # YOLO 推理
+                if yolo_enabled:
+                    results = model(display_frame, verbose=False)
+                    annotated = results[0].plot()  # 画框+标签
+                    display_frame = annotated
+
+                # 计算 FPS
+                fps_counter += 1
+                elapsed = time.time() - fps_start_time
+                if elapsed >= 1.0:
+                    display_fps = fps_counter / elapsed
+                    fps_counter = 0
+                    fps_start_time = time.time()
+
+                # 添加状态栏
+                h, w = display_frame.shape[:2]
+                status = f"YOLO: {'ON' if yolo_enabled else 'OFF'} | FPS: {display_fps:.1f}"
+                cv2.rectangle(display_frame, (0, 0), (w, 30), (0, 0, 0), -1)
+                cv2.putText(display_frame, status, (10, 22),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+                cv2.imshow(window_name, display_frame)
                 key = cv2.waitKey(1) & 0xFF
+
+                # Z 键切换 YOLO
+                if key == ord("z"):
+                    yolo_enabled = not yolo_enabled
+                    print(f"  -> YOLO 检测: {'开启' if yolo_enabled else '关闭'}")
+
+                # 关闭窗口退出
                 if key == ord("q") or cv2.getWindowProperty(window_name, cv2.WND_PROP_VISIBLE) < 1:
                     break
 
@@ -263,9 +311,6 @@ def main():
 
             # --- 手掌 "-" 模式切换 ---
             _curr_minus = kb.is_pressed("-")
-            # DEBUG: 打印当前按下的所有键
-            if kb.pressed_keys:
-                print(f"DEBUG pressed_keys: {kb.pressed_keys}", flush=True)
             if _curr_minus and not _prev_minus:
                 hand_mode = 2 if hand_mode == 1 else 1
                 hand_closed = False
