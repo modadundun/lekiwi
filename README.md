@@ -29,6 +29,27 @@
 
 ---
 
+<details>
+<summary><b>👀 附录：初代原型机抓取演示 (V1 Prototype Demo) - 点击展开</b></summary>
+<br>
+这是我们早期开发的初代机器人，已成功跑通了移动与物体抓取闭环，为当前的双臂系统奠定了基础：
+
+| 抓取测试 1 | 抓取测试 2 | 抓取测试 3 |
+| :---: | :---: | :---: |
+| <img src="docs/demo/videos/gif1.gif" width="250"/> | <img src="docs/demo/videos/gif2.gif" width="250"/> | <img src="docs/demo/videos/gif3.gif" width="250"/> |
+
+</details>
+
+
+
+
+
+
+
+
+
+
+
 ## 🎯 Project Background
 
 ### Research Motivation
