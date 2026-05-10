@@ -36,7 +36,7 @@ This is our early V1 prototype. It successfully validated the closed-loop pipeli
 
 | Grasping Test 1 | Grasping Test 2 | Grasping Test 3 |
 | :---: | :---: | :---: |
-| <img src="docs/demo/videos/<8bc6e6dde0a5207cc4dc6357102c3346>.gif" width="250" alt="V1 Demo 1"/> | <img src="docs/demo/videos/<559b8d2ccab68f621cae5b665b05a586>.gif" width="250" alt="V1 Demo 2"/> | <img src="docs/demo/videos/<f949633e9e6dca416e328e7f400637f5>.gif" width="250" alt="V1 Demo 3"/> |
+| <img src="docs/demo/videos/8bc6e6dde0a5207cc4dc6357102c3346.gif" width="250" alt="V1 Demo 1"/> | <img src="docs/demo/videos/559b8d2ccab68f621cae5b665b05a586.gif" width="250" alt="V1 Demo 2"/> | <img src="docs/demo/videos/f949633e9e6dca416e328e7f400637f5.gif" width="250" alt="V1 Demo 3"/> |
 
 </details>
 
