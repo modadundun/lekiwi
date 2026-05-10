@@ -130,7 +130,7 @@ Compared to commercial platforms, the **cost is reduced by 90%+**, while retaini
 
 ```bash
 # Clone the repository
-git clone https://github.com/Eastdo/lerobot_hand.git
+git clone https://github.com/modadundun/lerobot_hand.git
 cd lerobot_hand
 
 
