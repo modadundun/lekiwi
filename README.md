@@ -161,7 +161,7 @@ pip install scservo-sdk
 ssh pi@192.168.31.109
 
 # 2. Install the same dependencies
-git clone https://github.com/Eastdo/lerobot_hand.git
+git clone https://github.com/modadundun/lerobot_hand.git
 cd lekiwi
 pip install -e ".[all]"
 
