@@ -7,7 +7,7 @@
 [![LeRobot](https://img.shields.io/badge/LeRobot-Compatible-orange)](https://github.com/huggingface/lerobot)
 [![Hardware](https://img.shields.io/badge/Hardware-Custom%20Build-blueviolet)](#硬件清单)
 
-**基于 HuggingFace LeRobot 框架的低成本双臂移动操作平台，支持遥操作与模仿学习数据采集。**
+**基于 HuggingFace LeRobot 框架的低成本双臂移动操作平台，支持遥操作、模仿学习训练与自主执行。**
 
 [English](README.md) · [项目背景](#项目背景) · [硬件清单](#硬件清单) · [快速开始](#快速开始) · [数据集](#数据集) · [开发计划](#开发计划)
 
@@ -57,7 +57,8 @@ LeKiWi 基于以下开源技术与低成本硬件构建：
 - **双臂 10 自由度**：左右臂各 5 自由度，支持独立与协同控制
 - **8 自由度灵巧手**：每根手指独立控制，支持抓取与多种手势
 - **全向移动底盘**：3 个全向轮，支持前进、侧移、旋转
-- **LeRobot 原生支持**：录制数据直接用于 ACT、Diffusion Policy 等算法训练
+- **LeRobot 原生支持**：录制数据直接用于 ACT、Diffusion Policy 等算法训练，**已实现端到端模仿学习**
+
 - **远程遥操作**：Client-Server 架构，支持 WiFi 远程控制
 
 ---
@@ -261,7 +262,8 @@ print(dataset)
 | 键盘遥操作 | ✅ 完成 | PC 端控制 |
 | 远程控制架构 | ✅ 完成 | ZMQ WiFi 控制 |
 | YOLO 目标检测 | ✅ 完成 | 实时检测显示 |
-| 数据录制 | ✅ 完成 | LeRobot 格式 |
+| 数据录制 | ✅ 完成 | LeRobot 格式兼容 |
+| 模仿学习算法 | ✅ 完成 | ACT / Diffusion Policy 训练与推理 |
 
 ### 🔄 开发中
 
@@ -275,18 +277,18 @@ print(dataset)
 
 | 功能 | 优先级 | 说明 |
 |------|--------|------|
-| ACT 算法训练 | ⭐⭐⭐ | 行为克隆 |
-| Diffusion Policy 训练 | ⭐⭐⭐ | 扩散策略 |
-| GR00T 集成 | ⭐⭐⭐ | 统一接口 |
-| 触觉反馈 | ⭐⭐ | 末端传感器 |
-| 视觉-语言-动作 | ⭐⭐ | VLA 模型 |
+| GR00T 集成 | ⭐⭐⭐ | NVIDIA GR00T 统一接口 |
+| 3D Diffusion Policy | ⭐⭐⭐ | 点云输入的扩散策略 |
+| 触觉反馈 | ⭐⭐ | 末端力/触觉传感器 |
+| 视觉-语言-动作（VLA） | ⭐⭐ | 大模型指令驱动 |
+| 多机器人协作 | ⭐ | 多台 LeKiWi 协同 |
 
 ### 🎯 长期目标
 
-- [ ] 支持更多模仿学习算法（ACT、3D Diffusion Policy）
-- [ ] 集成仿真环境（Isaac Gym / MuJoCo）
-- [ ] 支持多机器人协作
-- [ ] 发布预训练模型
+- [ ] 集成仿真环境（Isaac Lab / MuJoCo）
+- [ ] 发布预训练模型权重
+- [ ] 支持多机器人协作任务
+- [ ] 构建 LeKiWi 专属大规模数据集
 
 ---
 
@@ -306,15 +308,17 @@ print(dataset)
 
 | Issue | 难度 | 描述 |
 |-------|------|------|
-| #12 | 🟢 简单 | 添加手柄遥操作支持 |
+| #12 | 🟢 简单 | 添加手柄/游戏手柄遥操作支持 |
 | #15 | 🟡 中等 | 优化图像传输延迟 |
-| #18 | 🔴 困难 | 实现 ACT 算法训练 |
+| #19 | 🟡 中等 | 集成仿真环境（Isaac Lab / MuJoCo） |
+| #21 | 🔴 困难 | GR00T 模型接口对接 |
 
 ### 数据采集
 
 如果您有 LeKiWi 机器人，欢迎参与数据采集项目！
 
 **采集任务（待开放）：**
+
 - [ ] 抓取不同形状物体
 - [ ] 移动到指定位置
 - [ ] 人机交接任务
@@ -326,9 +330,20 @@ print(dataset)
 
 ---
 
+## 🙏 致谢
+
+本项目在设计与开发过程中受到了 **[XLeRobot](https://github.com/Vector-Wangel/XLeRobot)** 项目的重要启发。XLeRobot 是由 Gaotian/Vector Wang（Rice 大学 RobotPi Lab）主导开发的低成本双臂移动家庭机器人平台，以不到 $660 的成本和 4 小时组装时间，成为了开源具身 AI 领域的标杆项目之一。
+
+> ⭐ **特别感谢 XLeRobot 团队**对开源社区的贡献，以及其在硬件设计、遥操作架构和模仿学习流程上提供的宝贵参考。
+
+---
+
 ## 📚 相关项目
 
+- [XLeRobot](https://github.com/Vector-Wangel/XLeRobot) - **低成本双臂移动家庭机器人（⭐5.1k），本项目核心参考来源**
 - [LeRobot](https://github.com/huggingface/lerobot) - HuggingFace 机器人学习框架
+- [LeKiwi (SIGRobotics)](https://github.com/SIGRobotics-UIUC/LeKiwi) - 原始 LeKiwi 全向底盘方案
+- [SO-ARM100](https://github.com/TheRobotStudio/SO-ARM100) - SO-100/SO-101 机械臂开源方案
 - [ALOHA](https://github.com/tonyzhaozh/act) - 双手遥操作平台
 - [Mobile ALOHA](https://mobile-aloha.github.io) - 移动双臂机器人
 - [piui](https://github.com/jyLeo/piui) - 树莓派控制界面
