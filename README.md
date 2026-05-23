@@ -1,4 +1,4 @@
-# LeKiWi: Low-Cost Dual-Arm Mobile Robot Teleoperation System
+# LCMR-1: Low-Cost Dual-Arm Mobile Robot
 
 <div align="center">
 
@@ -19,7 +19,7 @@
 
 > Click the image to watch the demo on Bilibili
 
-[![LeKiWi Teleoperation Demo](docs/images/video_thumbnail.png)](https://www.bilibili.com/video/BVxxxxxx)
+[![Teleoperation Demo](docs/images/video_thumbnail.png)](https://www.bilibili.com/video/BVxxxxxx)
 
 **Video Contents:**
 - 00:00 - Dual-arm cooperative grasping demo
@@ -28,6 +28,17 @@
 - 01:30 - YOLO object detection integration
 
 ---
+
+<details>
+<summary><b>👀 Appendix: V1 Prototype Grasping Demo (Click to expand)</b></summary>
+<br>
+This is our early V1 prototype. It successfully validated the closed-loop pipeline of mobility and object grasping, paving the way for our current dual-arm system:
+
+| Grasping Test 1 | Grasping Test 2 | Grasping Test 3 |
+| :---: | :---: | :---: |
+| <img src="docs/demo/videos/8bc6e6dde0a5207cc4dc6357102c3346.gif" width="250" alt="V1 Demo 1"/> | <img src="docs/demo/videos/559b8d2ccab68f621cae5b665b05a586.gif" width="250" alt="V1 Demo 2"/> | <img src="docs/demo/videos/f949633e9e6dca416e328e7f400637f5.gif" width="250" alt="V1 Demo 3"/> |
+
+</details>
 
 ## 🎯 Project Background
 
@@ -39,7 +50,7 @@ We aim to build a **fully functional, cost-controlled** dual-arm mobile robot pl
 
 ### Solution
 
-LeKiWi is built on the following open-source technologies and low-cost hardware:
+This platform is built on the following open-source technologies and low-cost hardware:
 
 | Component | Technology | Cost Reference |
 |-----------|------------|----------------|
@@ -57,7 +68,7 @@ Compared to commercial platforms, the **cost is reduced by 90%+**, while retaini
 - **10-DOF Dual Arms**: 5 DOF per arm, supporting independent and cooperative control
 - **8-DOF Dexterous Hands**: Independent finger control, supporting grasping and multiple gestures
 - **Omnidirectional Mobile Base**: 3 omnidirectional wheels, supporting forward/backward, lateral movement, and rotation
-- **Native LeRobot Support**: Recorded data can be directly used for ACT, Diffusion Policy, and other algorithm training — **end-to-end imitation learning已实现**
+- **Native LeRobot Support**: Recorded data can be directly used for ACT, Diffusion Policy, and other algorithm training — **end-to-end imitation learning is supported**.
 - **Remote Teleoperation**: Client-Server architecture, supporting WiFi remote control
 
 ---
@@ -95,30 +106,30 @@ Compared to commercial platforms, the **cost is reduced by 90%+**, while retaini
 
 ### Wiring Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
-│                        PC / Laptop                          │
-│                    (Running Client)                         │
+│                       PC / Laptop                           │
+│                    (Running Client)                         │
 └─────────────────────┬───────────────────────────────────────┘
-                      │ WiFi (ZMQ TCP)
-                      │
+                      │ WiFi (ZMQ TCP)
+                      │
 ┌─────────────────────▼───────────────────────────────────────┐
-│                     Raspberry Pi 4B                          │
-│                   (Running Server)                           │
-│                                                             │
-│   ┌─────────────┐              ┌─────────────┐            │
-│   │  USB (CH340) │              │  USB (CH340) │            │
-│   │   COM3       │              │   COM6       │            │
-│   └──────┬──────┘              └──────┬──────┘            │
-│          │                             │                     │
-│   ┌──────▼──────┐              ┌──────▼──────┐            │
-│   │  STS3215 x14 │              │  SCS0009 x8 │            │
-│   │   Arms+Base   │              │    Hands     │            │
-│   └─────────────┘              └─────────────┘            │
-│                                                             │
-│   ┌─────────────┐                                          │
-│   │ USB Camera   │                                          │
-│   └─────────────┘                                          │
+│                    Raspberry Pi 4B                          │
+│                  (Running Server)                           │
+│                                                             │
+│   ┌─────────────┐              ┌─────────────┐              │
+│   │  USB (CH340) │              │  USB (CH340) │              │
+│   │   COM3       │              │   COM6       │              │
+│   └──────┬──────┘              └──────┬──────┘              │
+│          │                            │                     │
+│   ┌──────▼──────┐              ┌──────▼──────┐              │
+│   │  STS3215 x14 │              │  SCS0009 x8 │              │
+│   │   Arms+Base  │              │    Hands    │              │
+│   └─────────────┘              └─────────────┘              │
+│                                                             │
+│   ┌─────────────┐                                           │
+│   │ USB Camera  │                                           │
+│   └─────────────┘                                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -130,9 +141,8 @@ Compared to commercial platforms, the **cost is reduced by 90%+**, while retaini
 
 ```bash
 # Clone the repository
-git clone https://github.com/Eastdo/lerobot_hand.git
+git clone https://github.com/modadundun/lerobot_hand.git
 cd lerobot_hand
-
 
 # Create conda environment
 conda create -n lekiwi python=3.9
@@ -150,13 +160,13 @@ pip install scservo-sdk
 ssh pi@192.168.31.109
 
 # 2. Install the same dependencies
-git clone https://github.com/Eastdo/lerobot_hand.git
+git clone https://github.com/modadundun/lerobot_hand.git
 cd lekiwi
 pip install -e ".[all]"
 
 # 3. Modify serial port configuration (based on actual device names)
 vim examples/lekiwi/lekiwi_server.py
-# ARM_PORT = "/dev/ttyACM1"  # Arm bus
+# ARM_PORT = "/dev/ttyACM1"  # Arm bus
 # HAND_PORT = "/dev/ttyACM0" # Hand bus
 
 # 4. Start the Server
@@ -194,17 +204,17 @@ python examples/lekiwi/lekiwi_client_pc.py
 
 ### LeRobot Dataset Format
 
-LeKiWi recorded data is compatible with the official LeRobot dataset format and can be directly used for imitation learning training.
+Recorded data is compatible with the official LeRobot dataset format and can be directly used for imitation learning training.
 
 ### Recording Data
 
 ```bash
 # Record on the Raspberry Pi
 python examples/lekiwi/record.py \
-    --robot-url "lekiwi" \
-    --output-dir "./data/my_dataset" \
-    --fps 30 \
-    --num-episodes 10
+    --robot-url "lekiwi" \
+    --output-dir "./data/my_dataset" \
+    --fps 30 \
+    --num-episodes 10
 ```
 
 ### Usage Example
@@ -214,29 +224,24 @@ from lerobot.common.datasets import load_dataset
 
 # Load local dataset
 dataset = load_dataset(
-    repo_id="your_username/lekiwi_sim_demo",
-    root="./data/my_dataset"
+    repo_id="your_username/lekiwi_sim_demo",
+    root="./data/my_dataset"
 )
 
 # View dataset structure
 print(dataset)
-
-# Dataset contains the following fields:
-# - observation.images.phone: Camera image
-# - observation.state: Joint angles (14 dimensions)
-# - action: Target joint angles
-# - episode_index: Episode index
 ```
 
-### Dataset Format Description
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `observation.state` | float32[14] | Normalized positions of 14 servos |
-| `observation.images.phone` | uint8[240,320,3] | Camera RGB image |
-| `action` | float32[14] | Target joint angles |
-
 ## 📋 Development Plan
+
+### 🌟 Core Future Focus: Modular Robotic Arms
+
+Moving forward, the strategic focus of our team is shifting towards the design, development, and launch of **Modular Robotic Arms**. We aim to dramatically lower the barrier to entry for hardware assembly in embodied AI research by providing:
+
+- **Plug-and-Play Joint Modules**: Standardized, self-contained actuators that can be easily combined.
+- **Quick-Swap End-Effectors**: Seamlessly switch between parallel grippers, multi-finger dexterous hands, and suction cups.
+- **Flexible Configurations**: Allow users to easily scale from a simple 4-DOF manipulator to a highly redundant 7-DOF arm based on task requirements.
+- **Hardware-Software Co-Design**: Native integration with the LeRobot framework, ensuring any new modular configuration is instantly ready for imitation learning data collection.
 
 ### ✅ Completed Features
 
@@ -253,28 +258,20 @@ print(dataset)
 
 ### 🔄 In Progress
 
-| Feature | Status | Expected Completion |
-|---------|--------|---------------------|
+| Feature | Status | Expected |
+|---------|--------|----------|
+| **Modular Arm Prototype V1** | 🔄 In Progress | 2026 Q2 |
 | Gamepad teleoperation | 🔄 In Progress | 2026 Q2 |
 | ROS2 integration | 🔄 In Progress | 2026 Q2 |
-| Mobile picking task | 🔄 In Progress | 2026 Q3 |
 
 ### 📅 To Be Developed
 
 | Feature | Priority | Description |
 |---------|-----------|-------------|
+| Standardized Modular SDK | ⭐⭐⭐ | Unified API for all modular joint combinations |
 | GR00T integration | ⭐⭐⭐ | NVIDIA GR00T unified interface |
 | 3D Diffusion Policy | ⭐⭐⭐ | Point-cloud based diffusion policy |
 | Tactile feedback | ⭐⭐ | End-effector force/tactile sensors |
-| Vision-Language-Action (VLA) | ⭐⭐ | LLM instruction-driven |
-| Multi-robot collaboration | ⭐ | Multiple LeKiWi units cooperating |
-
-### 🎯 Long-Term Goals
-
-- [ ] Integrate simulation environment (Isaac Lab / MuJoCo)
-- [ ] Release pre-trained model weights
-- [ ] Support multi-robot collaboration tasks
-- [ ] Build LeKiWi-specific large-scale dataset
 
 ---
 
@@ -290,18 +287,9 @@ We welcome all forms of contribution!
 4. **Push to the branch**: `git push origin feature/amazing-feature`
 5. **Create a Pull Request**
 
-### Open Issues
-
-| Issue | Difficulty | Description |
-|-------|------------|-------------|
-| #12 | 🟢 Easy | Add gamepad/joystick teleoperation support |
-| #15 | 🟡 Medium | Optimize image transmission latency |
-| #19 | 🟡 Medium | Integrate simulation environment (Isaac Lab / MuJoCo) |
-| #21 | 🔴 Hard | GR00T model interface integration |
-
 ### Data Collection
 
-If you have a LeKiWi robot, you are welcome to participate in the data collection project!
+If you have built this robot, you are welcome to participate in the data collection project!
 
 **Collection Tasks (to be opened):**
 - [ ] Grasping objects of different shapes
@@ -327,7 +315,7 @@ The design and development of this project was significantly inspired by the **[
 
 - [XLeRobot](https://github.com/Vector-Wangel/XLeRobot) - **Low-cost dual-arm mobile home robot (⭐5.1k), core reference for this project**
 - [LeRobot](https://github.com/huggingface/lerobot) - HuggingFace robot learning framework
-- [LeKiwi (SIGRobotics)](https://github.com/SIGRobotics-UIUC/LeKiwi) - Original LeKiwi omnidirectional base solution
+- [LeKiwi (SIGRobotics)](https://github.com/SIGRobotics-UIUC/LeKiwi) - Original LeKiwi omnidirectional base solution (Architectural reference)
 - [SO-ARM100](https://github.com/TheRobotStudio/SO-ARM100) - SO-100/SO-101 robotic arm open-source solution
 - [ALOHA](https://github.com/tonyzhaozh/act) - Dual-hand teleoperation platform
 - [Mobile ALOHA](https://mobile-aloha.github.io) - Mobile dual-arm robot
@@ -343,9 +331,9 @@ This project is licensed under the **Apache License 2.0**.
 
 ## 📧 Contact
 
-- **Project Homepage**: https://github.com/your_username/lekiwi
-- **Issue Tracker**: https://github.com/your_username/lekiwi/issues
-- **Discussions**: https://github.com/your_username/lekiwi/discussions
+- **Project Homepage**: [https://github.com/your_username/lekiwi](https://github.com/your_username/lekiwi)
+- **Issue Tracker**: [https://github.com/your_username/lekiwi/issues](https://github.com/your_username/lekiwi/issues)
+- **Discussions**: [https://github.com/your_username/lekiwi/discussions](https://github.com/your_username/lekiwi/discussions)
 
 ---
 
